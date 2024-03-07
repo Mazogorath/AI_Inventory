@@ -45,3 +45,6 @@ sudo apt install portaudio19-dev python3-pyaudio
 
 ## 출처
 https://github.com/mallorbc/whisper_mic
+
+## Update
+2024.03.07 마이크로 음성 입력 후 Text 출력 기본틀 생성
