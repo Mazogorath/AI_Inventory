@@ -1,3 +1,6 @@
+## Update
+2024.03.07 마이크로 음성 입력 후 Text 출력 기본틀 생성
+
 # Whisper Mic
 Whisper Mic은 OpenAI의 자동 음성 인식(Automatic Speech Recognition, ASR) 기술, Whisper를 기반으로 하는 오픈 소스 프로젝트입니다.   
 마이크를 사용하여 실시간으로 음성을 텍스트로 변환할 수 있습니다.
@@ -45,6 +48,3 @@ sudo apt install portaudio19-dev python3-pyaudio
 
 ## 출처
 https://github.com/mallorbc/whisper_mic
-
-## Update
-2024.03.07 마이크로 음성 입력 후 Text 출력 기본틀 생성
