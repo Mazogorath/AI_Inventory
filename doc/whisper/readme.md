@@ -1,5 +1,6 @@
 ## Update
 2024.03.07 마이크로 음성 입력 후 Text 출력 기본틀 생성
+2024.03.08 DB 생성 후 Product 단어 검출 시 음성 출력
 
 # Whisper Mic
 Whisper Mic은 OpenAI의 자동 음성 인식(Automatic Speech Recognition, ASR) 기술, Whisper를 기반으로 하는 오픈 소스 프로젝트입니다.   
