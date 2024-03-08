@@ -2,9 +2,7 @@ import os
 import cv2
 import platform
 import numpy as np
-import matplotlib.pyplot as plt
 import datetime
-from typing import Union
 from openvino.runtime import Core
 
 # Basic Paths
@@ -42,6 +40,7 @@ del raw_list
 # Clahe Filter Preset
 clahe = cv2.createCLAHE(clipLimit=2.5, tileGridSize=(5, 5))
 
+
 # Make Image/Frame into Required Size and Channels for Inference
 def preprocess(image: np.ndarray, width: int, height: int, model_name: str = "arcface") -> np.ndarray:
 
@@ -54,10 +53,12 @@ def preprocess(image: np.ndarray, width: int, height: int, model_name: str = "ar
 
     return np.expand_dims(image, axis=0)
 
+
 # Compute the cosine similarity between two vectors
 def cosine_similarity(a: np.ndarray, b: np.ndarray) -> float:
 
     return np.dot(a, b.reshape(-1, 1)) / (np.linalg.norm(a) * np.linalg.norm(b))
+
 
 # Setup the OpenVino Model
 def setup(target: str, model_path: str, bin_path: str) -> tuple:
@@ -72,6 +73,7 @@ def setup(target: str, model_path: str, bin_path: str) -> tuple:
     return model, input_layer, output_layer, \
         (input_layer.shape[0], input_layer.shape[1],
          input_layer.shape[2], input_layer.shape[3])
+
 
 # Detect Faces in the Image
 def detect_faces(
@@ -106,6 +108,7 @@ def detect_faces(
                 pass
     label_indexes, probs, boxes
     return label_indexes, probs, boxes
+
 
 # Make a List of Face of Employees Based on Images
 def processPictures(target="CPU", model="facenet"):
@@ -148,9 +151,8 @@ def processPictures(target="CPU", model="facenet"):
         # Append Cosine Similarity Point of Face into the List
         cs.append(cosine_similarity(
             reference_embeddings[count], reference_embeddings[count])[0][0])
-        
-    return d_model, d_output_layer, d_H, d_W, r_model, r_output_layer, r_H, r_W
 
+    return d_model, d_output_layer, d_H, d_W, r_model, r_output_layer, r_H, r_W
 
 
 def faceCheckings(model="facenet"):
@@ -188,7 +190,7 @@ def faceCheckings(model="facenet"):
         frame = preprocess(frame, d_W, d_H)
         _, _, boxes = detect_faces(
             d_model, d_output_layer, frame, CAM_WIDTH, CAM_HEIGHT)
-        
+
         # Preprocess Face ROI Frame and Get Embeddings
         for box in boxes:
             face_frame = temp_frame[box[1]:box[3], box[0]:box[2], :]
@@ -215,10 +217,11 @@ def faceCheckings(model="facenet"):
                 cv2.rectangle(disp_frame, pt1, pt2, color=(0, 255, 0))
                 cv2.putText(disp_frame, f"{employees[max_idx]}", org=(
                     box[0] + 5, box[1] + 30), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, thickness=1, color=(0, 255, 0))
-                if klist[max_idx] > 0.75:
+                if klist[max_idx] > 0.65:
                     now = datetime.datetime.now()
-                    cv2.imwrite(f"./Pictures/{now}.jpg", disp_frame)
-                    
+                    cv2.imwrite(
+                        f"./Pictures/{now}_{file_list[max_idx]}.jpg", disp_frame)
+                    return f"{file_list[max_idx]}", disp_frame
 
             # Show frame with boxes
             cv2.imshow("Feed", disp_frame)
