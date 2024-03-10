@@ -220,8 +220,8 @@ def faceCheckings(model="facenet"):
                 if klist[max_idx] > 0.65:
                     now = datetime.datetime.now()
                     cv2.imwrite(
-                        f"./Pictures/{now}_{file_list[max_idx]}.jpg", disp_frame)
-                    return f"{file_list[max_idx]}", disp_frame
+                        f"./Pictures/{now}_{employees[max_idx]}.jpg", disp_frame)
+                    return f"{employees[max_idx]}", disp_frame
 
             # Show frame with boxes
             cv2.imshow("Feed", disp_frame)
@@ -241,3 +241,4 @@ def faceCheckings(model="facenet"):
 
 
 faceCheckings()
+

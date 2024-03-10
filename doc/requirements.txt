@@ -33,7 +33,6 @@ huggingface-hub==0.21.4
 idna==3.6
 importlib-metadata==7.0.1
 importlib_resources==6.1.2
-iotdemo @ file:///home/busan/intel-01/class02/smart-factory/dist/iotdemo-0.0.1-py2.py3-none-any.whl
 itsdangerous==2.1.2
 Jinja2==3.1.3
 jsonschema==4.21.1

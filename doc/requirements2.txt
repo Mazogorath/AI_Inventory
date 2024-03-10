@@ -1,0 +1,4 @@
+requirements.txt 설치 후에도 오류 발생하면 설치
+sudo apt-get install portaudio19-dev
+sudo apt-get install ffmpeg
+
