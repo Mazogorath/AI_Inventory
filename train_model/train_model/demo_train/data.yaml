@@ -1,0 +1,13 @@
+data:
+  train:
+    ann-files: null
+    data-roots: /local01/team001/Lee/train/demo_train/splitted_dataset/train
+  val:
+    ann-files: null
+    data-roots: /local01/team001/Lee/train/demo_train/splitted_dataset/val
+  test:
+    ann-files: null
+    data-roots: null
+  unlabeled:
+    file-list: null
+    data-roots: null

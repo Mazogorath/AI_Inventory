@@ -1,0 +1,363 @@
+
+
+ ██████╗     ████████╗    ██╗  ██╗
+██╔═══██╗    ╚══██╔══╝    ╚██╗██╔╝
+██║   ██║       ██║        ╚███╔╝
+██║   ██║       ██║        ██╔██╗
+╚██████╔╝       ██║       ██╔╝ ██╗
+ ╚═════╝        ╚═╝       ╚═╝  ╚═╝
+
+------------------------------------------------------------
+
+Current path: /local01/team001/Lee/train/demo_train
+sys.argv: ['otx train']
+OTX: 1.5.0
+------------------------------------------------------------
+
+Running Environments
+
+------------------------------------------------------------
+	sys.platform: linux
+	Python: 3.8.10 (default, Nov 22 2023, 10:22:35) [GCC 9.4.0]
+	CUDA available: True
+	GPU 0,1: NVIDIA RTX A6000
+	CUDA_HOME: /usr/local/cuda
+	NVCC: Cuda compilation tools, release 11.7, V11.7.99
+	GCC: x86_64-linux-gnu-gcc (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0
+	PyTorch: 1.13.1+cu117
+	TorchVision: 0.14.1+cu117
+	OpenCV: 4.9.0
+	MMCV: 1.7.2
+	MMCV Compiler: GCC 9.4
+	MMCV CUDA Compiler: 11.7
+------------------------------------------------------------
+
+Template Information
+
+------------------------------------------------------------
+	model_template_id: 'Custom_Object_Detection_Gen3_ATSS'
+	model_template_path: 'template.yaml'
+	name: 'MobileNetV2-ATSS'
+	task_family: <TaskFamily.VISION: 1>
+	task_type: DETECTION
+	instantiation: <InstantiationType.CLASS: 2>
+	summary: 'Class-Incremental Object Detection for MobileNetV2-ATSS'
+	framework: 'OTXDetection v2.9.1'
+	max_nodes: 1
+	application: None
+	dependencies: []
+	initial_weights: None
+	training_targets: [<TargetDevice.GPU: 3>, <TargetDevice.CPU: 2>]
+	inference_targets: []
+	dataset_requirements: DatasetRequirements(classes=None)
+	model_optimization_methods: []
+	hyper_parameters: HyperParameterData(base_path='./configuration.yaml', parameter_overrides={'learning_parameters': {'batch_size': {'default_value': 8, 'auto_hpo_state': 'POSSIBLE'}, 'inference_batch_size': {'default_value': 8}, 'learning_rate': {'default_value': 0.004, 'auto_hpo_state': 'POSSIBLE'}, 'learning_rate_warmup_iters': {'default_value': 3}, 'num_iters': {'default_value': 200}}, 'nncf_optimization': {'enable_quantization': {'default_value': True}, 'enable_pruning': {'default_value': False}, 'pruning_supported': {'default_value': True}, 'maximal_accuracy_degradation': {'default_value': 1.0}}, 'algo_backend': {'train_type': {'default_value': 'Incremental'}}})
+	is_trainable: True
+	capabilities: ['compute_representations']
+	grpc_address: None
+	entrypoints: EntryPoints(base='otx.algorithms.detection.adapters.mmdet.task.MMDetectionTask', openvino='otx.algorithms.detection.adapters.openvino.task.OpenVINODetectionTask', nncf='otx.algorithms.detection.adapters.mmdet.nncf.task.DetectionNNCFTask')
+	base_model_path: ''
+	exportable_code_paths: ExportableCodePaths(default=None, openvino=None)
+	task_type_sort_priority: -1
+	gigaflops: 20.6
+	size: 9.1
+	hpo: None
+	model_category: <ModelCategory.ACCURACY: 3>
+	model_status: <ModelStatus.ACTIVE: 1>
+	is_default_for_task: True
+------------------------------------------------------------
+
+Dataset Information
+
+------------------------------------------------------------
+train_subset:
+	data_roots: /local01/team001/Lee/train/demo_train/splitted_dataset/train
+	ann_files: None
+val_subset:
+	data_roots: /local01/team001/Lee/train/demo_train/splitted_dataset/val
+	ann_files: None
+test_subset:
+	data_roots: None
+	ann_files: None
+------------------------------------------------------------
+
+Configurations
+
+------------------------------------------------------------
+model: {'backbone': {'frozen_stages': -1,
+              'norm_eval': False,
+              'out_indices': (2, 3, 4, 5),
+              'pretrained': None,
+              'type': 'mobilenetv2_w1'},
+ 'bbox_head': {'anchor_generator': {'octave_base_scale': 8,
+                                    'ratios': [1.0],
+                                    'scales_per_octave': 1,
+                                    'strides': [8, 16, 32, 64, 128],
+                                    'type': 'AnchorGenerator'},
+               'bbox_coder': {'target_means': [0.0, 0.0, 0.0, 0.0],
+                              'target_stds': [0.1, 0.1, 0.2, 0.2],
+                              'type': 'DeltaXYWHBBoxCoder'},
+               'feat_channels': 64,
+               'in_channels': 64,
+               'loss_bbox': {'loss_weight': 2.0, 'type': 'GIoULoss'},
+               'loss_centerness': {'loss_weight': 1.0,
+                                   'type': 'CrossEntropyLoss',
+                                   'use_sigmoid': True},
+               'loss_cls': {'alpha': 0.25,
+                            'gamma': 2.0,
+                            'loss_weight': 1.0,
+                            'type': 'FocalLoss',
+                            'use_sigmoid': True},
+               'num_classes': 2,
+               'qfl_cfg': {'beta': 2.0,
+                           'loss_weight': 1.0,
+                           'type': 'QualityFocalLoss',
+                           'use_sigmoid': True},
+               'stacked_convs': 4,
+               'type': 'CustomATSSHead',
+               'use_qfl': False},
+ 'neck': {'add_extra_convs': 'on_output',
+          'in_channels': [24, 32, 96, 320],
+          'num_outs': 5,
+          'out_channels': 64,
+          'relu_before_extra_convs': True,
+          'start_level': 1,
+          'type': 'FPN'},
+ 'task_adapt': {'dst_classes': ['person', 'book'],
+                'src_classes': ['person', 'book']},
+ 'test_cfg': {'max_per_img': 100,
+              'min_bbox_size': 0,
+              'nms': {'iou_threshold': 0.6, 'type': 'nms'},
+              'nms_pre': 1000,
+              'score_thr': 0.05},
+ 'train_cfg': {'allowed_border': -1,
+               'assigner': {'topk': 9, 'type': 'ATSSAssigner'},
+               'debug': False,
+               'pos_weight': -1},
+ 'type': 'CustomATSS'}
+resume_from: None
+checkpoint_config: {'interval': 1, 'max_keep_ckpts': 1}
+task: 'detection'
+dist_params: {'backend': 'nccl', 'linear_scale_lr': True}
+cudnn_benchmark: True
+seed: 5
+deterministic: False
+hparams: {'dummy': 0}
+task_adapt: {'efficient_mode': False,
+ 'final': ['person', 'book'],
+ 'op': 'REPLACE',
+ 'type': 'default_task_adapt',
+ 'use_adaptive_anchor': True}
+log_level: 'INFO'
+optimizer: {'lr': 0.004, 'momentum': 0.9, 'type': 'SGD', 'weight_decay': 0.0001}
+optimizer_config: {'distributed': False,
+ 'grad_clip': {'max_norm': 35, 'norm_type': 2},
+ 'loss_scale': 512.0,
+ 'type': 'Fp16OptimizerHook'}
+runner: {'max_epochs': 200, 'type': 'EpochRunnerWithCancel'}
+workflow: [('train', 1)]
+lr_config: {'interval': 1,
+ 'iteration_patience': 0,
+ 'metric': 'mAP',
+ 'min_lr': 1e-06,
+ 'patience': 5,
+ 'policy': 'ReduceLROnPlateau',
+ 'warmup': 'linear',
+ 'warmup_iters': 3,
+ 'warmup_ratio': 0.3333333333333333}
+evaluation: {'metric': 'mAP'}
+early_stop_metric: 'mAP'
+custom_hooks: [{'interval': 1,
+  'iteration_patience': 0,
+  'metric': 'mAP',
+  'patience': 10,
+  'priority': 75,
+  'start': 3,
+  'type': 'LazyEarlyStoppingHook'},
+ {'momentum': 0.1, 'priority': 'ABOVE_NORMAL', 'type': 'EMAHook'},
+ {'enable_adaptive_interval_hook': True,
+  'enable_eval_before_run': True,
+  'max_interval': 5,
+  'type': 'AdaptiveTrainSchedulingHook'},
+ {'priority': 'LOWEST', 'type': 'ForceTrainModeHook'},
+ {'dst_classes': ['person', 'book'],
+  'efficient_mode': False,
+  'model_type': 'CustomATSS',
+  'priority': 'NORMAL',
+  'sampler_flag': False,
+  'sampler_type': 'cls_incr',
+  'src_classes': ['person', 'book'],
+  'type': 'TaskAdaptHook'},
+ {'init_callback': 'otx.algorithms.common.tasks.base_task.OnHookInitialized',
+  'type': 'CancelInterfaceHook'},
+ {'priority': 71,
+  'time_monitor': <otx.algorithms.common.utils.callback.TrainingProgressCallback object at 0x7f81e86cefa0>,
+  'type': 'OTXProgressHook',
+  'verbose': True},
+ {'priority': 'VERY_LOW', 'type': 'MemCacheHook'}]
+ignore: False
+domain: <Domain.DETECTION: 3>
+work_dir: 'outputs/20240312_112650_train/logs'
+resume: False
+model_task: 'detection'
+train_pipeline: [{'enable_memcache': True,
+  'load_ann_cfg': {'type': 'LoadAnnotationFromOTXDataset', 'with_bbox': True},
+  'resize_cfg': {'downscale_only': True,
+                 'img_scale': (1088, 800),
+                 'keep_ratio': True,
+                 'type': 'Resize'},
+  'type': 'LoadResizeDataFromOTXDataset'},
+ {'min_crop_size': 0.3,
+  'min_ious': (0.1, 0.3, 0.5, 0.7, 0.9),
+  'type': 'MinIoURandomCrop'},
+ {'img_scale': [(992, 736), (896, 736), (1088, 736), (992, 672), (992, 800)],
+  'keep_ratio': False,
+  'multiscale_mode': 'value',
+  'override': True,
+  'type': 'Resize'},
+ {'flip_ratio': 0.5, 'type': 'RandomFlip'},
+ {'mean': [0, 0, 0],
+  'std': [255, 255, 255],
+  'to_rgb': True,
+  'type': 'Normalize'},
+ {'type': 'DefaultFormatBundle'},
+ {'keys': ['img', 'gt_bboxes', 'gt_labels'],
+  'meta_keys': ['ori_filename',
+                'flip_direction',
+                'scale_factor',
+                'img_norm_cfg',
+                'gt_ann_ids',
+                'flip',
+                'ignored_labels',
+                'ori_shape',
+                'filename',
+                'img_shape',
+                'pad_shape'],
+  'type': 'Collect'}]
+val_pipeline: [{'enable_memcache': True,
+  'resize_cfg': {'img_scale': (992, 736),
+                 'keep_ratio': False,
+                 'type': 'Resize'},
+  'type': 'LoadResizeDataFromOTXDataset'},
+ {'flip': False,
+  'img_scale': (992, 736),
+  'transforms': [{'type': 'RandomFlip'},
+                 {'mean': [0, 0, 0],
+                  'std': [255, 255, 255],
+                  'to_rgb': True,
+                  'type': 'Normalize'},
+                 {'keys': ['img'], 'type': 'ImageToTensor'},
+                 {'keys': ['img'], 'type': 'Collect'}],
+  'type': 'MultiScaleFlipAug'}]
+test_pipeline: [{'type': 'LoadImageFromOTXDataset'},
+ {'flip': False,
+  'img_scale': (992, 736),
+  'transforms': [{'keep_ratio': False, 'type': 'Resize'},
+                 {'type': 'RandomFlip'},
+                 {'mean': [0, 0, 0],
+                  'std': [255, 255, 255],
+                  'to_rgb': True,
+                  'type': 'Normalize'},
+                 {'keys': ['img'], 'type': 'ImageToTensor'},
+                 {'keys': ['img'], 'type': 'Collect'}],
+  'type': 'MultiScaleFlipAug'}]
+data: {'test': {'labels': [LabelEntity(0, name=person, hotkey=, domain=DETECTION, color=Color(red=118, green=219, blue=97, alpha=255), is_anomalous=False),
+                     LabelEntity(1, name=book, hotkey=, domain=DETECTION, color=Color(red=120, green=24, blue=12, alpha=255), is_anomalous=False)],
+          'model_classes': ['person', 'book'],
+          'org_type': 'OTXDetDataset',
+          'pipeline': [{'type': 'LoadImageFromOTXDataset'},
+                       {'flip': False,
+                        'img_scale': (992, 736),
+                        'transforms': [{'keep_ratio': False, 'type': 'Resize'},
+                                       {'type': 'RandomFlip'},
+                                       {'mean': [0, 0, 0],
+                                        'std': [255, 255, 255],
+                                        'to_rgb': False,
+                                        'type': 'Normalize'},
+                                       {'keys': ['img'],
+                                        'type': 'ImageToTensor'},
+                                       {'keys': ['img'], 'type': 'Collect'}],
+                        'type': 'MultiScaleFlipAug'}],
+          'test_mode': True,
+          'type': 'TaskAdaptEvalDataset'},
+ 'test_dataloader': Config (path: None): {'samples_per_gpu': 8, 'workers_per_gpu': 2, 'persistent_workers': True, 'pin_memory': True},
+ 'train': {'labels': [LabelEntity(0, name=person, hotkey=, domain=DETECTION, color=Color(red=118, green=219, blue=97, alpha=255), is_anomalous=False),
+                      LabelEntity(1, name=book, hotkey=, domain=DETECTION, color=Color(red=120, green=24, blue=12, alpha=255), is_anomalous=False)],
+           'new_classes': ['book', 'person'],
+           'pipeline': [{'enable_memcache': True,
+                         'load_ann_cfg': {'type': 'LoadAnnotationFromOTXDataset',
+                                          'with_bbox': True},
+                         'resize_cfg': {'downscale_only': True,
+                                        'img_scale': (1088, 800),
+                                        'keep_ratio': True,
+                                        'type': 'Resize'},
+                         'type': 'LoadResizeDataFromOTXDataset'},
+                        {'min_crop_size': 0.3,
+                         'min_ious': (0.1, 0.3, 0.5, 0.7, 0.9),
+                         'type': 'MinIoURandomCrop'},
+                        {'img_scale': [(992, 736),
+                                       (896, 736),
+                                       (1088, 736),
+                                       (992, 672),
+                                       (992, 800)],
+                         'keep_ratio': False,
+                         'multiscale_mode': 'value',
+                         'override': True,
+                         'type': 'Resize'},
+                        {'flip_ratio': 0.5, 'type': 'RandomFlip'},
+                        {'mean': [0, 0, 0],
+                         'std': [255, 255, 255],
+                         'to_rgb': False,
+                         'type': 'Normalize'},
+                        {'type': 'DefaultFormatBundle'},
+                        {'keys': ['img', 'gt_bboxes', 'gt_labels'],
+                         'meta_keys': ['ori_filename',
+                                       'flip_direction',
+                                       'scale_factor',
+                                       'img_norm_cfg',
+                                       'gt_ann_ids',
+                                       'flip',
+                                       'ignored_labels',
+                                       'ori_shape',
+                                       'filename',
+                                       'img_shape',
+                                       'pad_shape'],
+                         'type': 'Collect'}],
+           'type': 'OTXDetDataset'},
+ 'train_dataloader': Config (path: None): {'samples_per_gpu': 8, 'workers_per_gpu': 2, 'persistent_workers': True, 'pin_memory': True},
+ 'val': {'model_classes': ['person', 'book'],
+         'org_type': 'OTXDetDataset',
+         'pipeline': [{'enable_memcache': True,
+                       'resize_cfg': {'img_scale': (992, 736),
+                                      'keep_ratio': False,
+                                      'type': 'Resize'},
+                       'type': 'LoadResizeDataFromOTXDataset'},
+                      {'flip': False,
+                       'img_scale': (992, 736),
+                       'transforms': [{'type': 'RandomFlip'},
+                                      {'mean': [0, 0, 0],
+                                       'std': [255, 255, 255],
+                                       'to_rgb': False,
+                                       'type': 'Normalize'},
+                                      {'keys': ['img'],
+                                       'type': 'ImageToTensor'},
+                                      {'keys': ['img'], 'type': 'Collect'}],
+                       'type': 'MultiScaleFlipAug'}],
+         'test_mode': True,
+         'type': 'TaskAdaptEvalDataset'},
+ 'val_dataloader': Config (path: None): {'samples_per_gpu': 8, 'workers_per_gpu': 2, 'persistent_workers': True, 'pin_memory': True}}
+early_stop: {'iteration_patience': 0, 'patience': 10, 'start': 3}
+algo_backend: DetectionConfig.__AlgoBackend(visible_in_ui=True, train_type=<TrainType.Incremental: 'Incremental'>, mem_cache_size=1000000000, storage_cache_scheme=<StorageCacheScheme.NONE: 'NONE'>, header='Parameters for the OTX algo-backend', description='Parameters for the OTX algo-backend', enable_noisy_label_detection=False)
+use_adaptive_interval: True
+distributed: False
+gpu_ids: range(0, 1)
+device: 'cuda'
+load_from: 'outputs/20240312_112650_train/logs/best_mAP_epoch_44.pth'
+------------------------------------------------------------
+
+Results
+
+------------------------------------------------------------
+	time elapsed: '0:02:52.320447'
+	score: Performance(score: 0.7851458885941645, dashboard: (15 metric groups))
+	model_path: '/local01/team001/Lee/train/demo_train/outputs/20240312_112650_train/models'
