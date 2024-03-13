@@ -2,45 +2,62 @@
 2024.03.07 우분투 환경에서 opencv를 활용한 글자추출<br>
 2024.03.08 코드를 실행하기 위한 프로그래밍 환경 조성<br>
 2024.03.11 CVAT을 통해 문자 데이터셋 만들기<br>
-2024.03.12 PaddleOCR model을 이용하여 이미지 파일의 텍스트 추출<br>
+2024.03.12 PaddleOCR Model을 이용하여 이미지 파일의 텍스트 추출<br>
+2024.03.13 이미지의 text만 출력되게 코드 수정하고 출력되는 text정렬
 
 ## 사물의 글자추출 프로그램
 
 
 ## 함수
-ocr = PaddleOCR(lang = "korean") - 모델 초기화
 
-image = cv2.imread("test04.jpg") - 이미지 불러오기
+import cv2
+from paddleocr import PaddleOCR
 
-result = ocr.ocr(image) - OCR실행
+def extract_text(ocr_result):
+  """
+  OCR 결과 리스트에서 문자열만 추출하는 함수
 
-# for line in result:
-#     if len(line[1]) > 0:
-#         print(1)
-#         # print(f"텍스트: {line[0]}")
-#         # print(f"신뢰도 점수: {line[1][0]}")
-#     else:
-#         print("빈 텍스트 라인") - 신뢰도 출력
+  Args:
+      ocr_result: OCR 결과 리스트 (예시: [[[...], "안녕하세요"], [...]])
 
-#texts = [] - 텍스트 문자열 리스트 생성
+  Returns:
+      list: 추출된 문자열들의 리스트
+  """
+  texts = []
+  for page in ocr_result:
+    if page is None:
+      continue
+    for line in page[:]: # 각 페이지의 라인 정보 반복
+      # line[1]에는 인식된 텍스트 정보가 저장되어 있음
+      text = line[1] # 라인의 텍스트 정보 추출
+      texts.append(text)
+  return texts # 추출된 텍스트 리스트에 추가
 
-for line in result:
-    if len(line[1]) > 0:
-        texts.append(line[0]) - 결과 리스트에서 텍스트 문자열만 추출
-        
-for text in texts:
-    print(text) - 텍스트 문자열 출력
-    
- ookName = line[0][1][0] - 이미지에서 뽑아낸 텍스트 문자열
-print(BookName)  - 이미지에서 뽑아낸 텍스트 문자열 화면에 출력
+# 모델 초기화
+ocr = PaddleOCR(lang="korean")
 
-gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY) - 이미지를 회색조로 변환
+# 이미지 읽기
+image = cv2.imread("test2.png")
 
-blurred_image = cv2.GaussianBlur(gray_image, (5, 5), 0) - 가우시안 블러 필터 적용
+# OCR 실행
+result = ocr.ocr(image)
 
-thresh_image = cv2.threshold(blurred_image, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1] - 이미지를 이진화 시킴
+# 추출된 텍스트 리스트
+extracted_texts = extract_text(result)
 
-resized_image = cv2.resize(thresh_image, (640, 480)) - 이미지 크기 조정
+# 한글 문자열 변수 생성
+print(extracted_texts)
+
+# 추출된 텍스트 리스트 반복
+korean_string = ""
+for word, confidence in extracted_texts:
+    # isalpha() 함수는 알파벳인지 확인
+    for char in word:
+        if char.isalpha():
+            korean_string += char
+print(korean_string)
+# 한글 문장 출력
+# print(korean_sentence)
 
 ## 흐름
     	1. object image의 text detecting
@@ -50,7 +67,5 @@ resized_image = cv2.resize(thresh_image, (640, 480)) - 이미지 크기 조정
     	
 
 ## 문제점
-1. 가장 잘 맞는 모델을 써도 글자 인식률이 조금 낮음
-
-## 사용한 MODEL
-https://github.com/PaddlePaddle/PaddleOCR.git
+1. 가장 잘 맞는 모델을 써도 글자 인식이 좋지 않음
+2. 한번에 글자텍스트를 추출하여 인식률이 떨어짐
