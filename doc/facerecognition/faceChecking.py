@@ -229,16 +229,12 @@ def faceCheckings(model="facenet"):
         # Press 'q' to Quit
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
-        if cv2.waitKey(1) & 0xFF == ord('i') or cv2.waitKey(1) & 0xFF == ord('I'):
-            cv2.imwrite("./images/image20.jpg", disp_frame)
-            cap.release()
 
     # Release the Video Capture Object
     cap.release()
 
     # Destroy all cv2 Windows
-    cv2.destroyAllWindows()
+    cv2.destroyWindow("Feed")
 
 
 faceCheckings()
-
