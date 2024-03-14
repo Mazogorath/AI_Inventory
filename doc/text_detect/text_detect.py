@@ -1,49 +1,78 @@
 import cv2
 from paddleocr import PaddleOCR
 
-def extract_text(ocr_result):
-  """
-  OCR 결과 리스트에서 문자열만 추출하는 함수
+# 문자열 비교 함수
+def contains_any_text(texts, target_texts):
+    for target_text in target_texts:
+        if contains_text(texts, target_text):
+            return True
+    return False
 
-  Args:
-      ocr_result: OCR 결과 리스트 (예시: [[[...], "안녕하세요"], [...]])
+def contains_text(texts, target_text):
+    for text in texts:
+        if target_text in text:
+            return True
+    return False
 
-  Returns:
-      list: 추출된 문자열들의 리스트
-  """
-  texts = []
-  for page in ocr_result:
-    if page is None:
-      continue
-    for line in page[:]: # 각 페이지의 라인 정보 반복
-      # line[1]에는 인식된 텍스트 정보가 저장되어 있음
-      text = line[1] # 라인의 텍스트 정보 추출
-      texts.append(text)
-  return texts # 추출된 텍스트 리스트에 추가
+# OCR 수행 및 텍스트 추출 함수
+def perform_ocr(image_path):
+    # 모델 초기화
+    ocr = PaddleOCR(lang="korean")
 
-# 모델 초기화
-ocr = PaddleOCR(lang="korean")
+    # 이미지 읽기
+    image = cv2.imread(image_path)
 
-# 이미지 읽기
-image = cv2.imread("test2.png")
+    # OCR 실행
+    result = ocr.ocr(image)
 
-# OCR 실행
-result = ocr.ocr(image)
+    # 텍스트 문자열 리스트 생성
+    texts = []
 
-# 추출된 텍스트 리스트
-extracted_texts = extract_text(result)
+    # 결과 리스트에서 텍스트 문자열만 추출
+    for line in result:
+        if len(line) > 0 and isinstance(line[0], list) and len(line[0]) > 0:
+            texts.append(line[0][1][0] + line[2][1][0])
 
-# 한글 문자열 변수 생성
-print(extracted_texts)
+    return image, texts
 
-# 추출된 텍스트 리스트 반복
-korean_string = ""
-for word, confidence in extracted_texts:
-    # isalpha() 함수는 알파벳인지 확인
-    for char in word:
-        if char.isalpha():
-            korean_string += char
-print(korean_string)
-# 한글 문장 출력
-# print(korean_sentence)
+# 텍스트 검색 및 출력 함수
+def search_and_print_text(texts, target_texts):
+    # texts 리스트 출력
+    print("인식된 텍스트:")
+    for text in texts:
+        print(text)
 
+    # 특정 문자열 검색
+    matched_texts = []
+    for target_text in target_texts:
+        if contains_text(texts, target_text):
+            matched_texts.append(target_text)
+
+    if len(matched_texts) > 0:
+        print(f"{', '.join(matched_texts)}가 텍스트에 포함되어 있습니다.")
+    else:
+        print("검색한 문자열이 텍스트에 포함되어 있지 않습니다.")
+
+# 이미지에 텍스트 그리기 함수
+def draw_text_on_image(image, texts):
+    for i, text in enumerate(texts):
+        cv2.putText(image, text, (10, 30 + 20 * i), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+# 메인 함수
+def main():
+    image_path = "test8.jpg"
+    target_texts = ["애플리케이션", "파이썬", "프로그래밍"]
+
+    image, texts = perform_ocr(image_path)
+    search_and_print_text(texts, target_texts)
+    draw_text_on_image(image, texts)
+
+    # 키 입력 대기
+    cv2.waitKey(0)
+
+    # 모든 창 닫기
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()
+    
