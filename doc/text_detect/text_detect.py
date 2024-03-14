@@ -1,5 +1,7 @@
+import os
 import cv2
 from paddleocr import PaddleOCR
+import time
 
 # 문자열 비교 함수
 def contains_any_text(texts, target_texts):
@@ -60,19 +62,29 @@ def draw_text_on_image(image, texts):
 
 # 메인 함수
 def main():
-    image_path = "test8.jpg"
+    image_folder = "image_path"
     target_texts = ["애플리케이션", "파이썬", "프로그래밍"]
+    processed_images = set()
 
-    image, texts = perform_ocr(image_path)
-    search_and_print_text(texts, target_texts)
-    draw_text_on_image(image, texts)
+    # while True:
+    for filename in os.listdir(image_folder):
+        if filename.endswith(".jpg") or filename.endswith(".png"):
+            image_path = os.path.join(image_folder, filename)
+            if image_path not in processed_images:
+                image, texts = perform_ocr(image_path)
+                search_and_print_text(texts, target_texts)
+                draw_text_on_image(image, texts)
+                processed_images.add(image_path)
+                cv2.imshow("Image", image)
 
-    # 키 입력 대기
-    cv2.waitKey(0)
+        # key = cv2.waitKey(1) & 0xFF
+        # if key == 27:
+        #  break
+        # time.sleep(1)  # 1초마다 새로운 이미지 확인
 
     # 모든 창 닫기
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     main()
-    
+
