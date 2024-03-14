@@ -46,8 +46,8 @@ class ObjectDetection:
 
 
 def Object_capture():
-    object_detector = ObjectDetection(model_xml='../model/model.xml',
-                                      model_bin='../model/model.bin')
+    object_detector = ObjectDetection(model_xml='./models/model.xml',
+                                      model_bin='./models/model.bin')
 
     cap = cv2.VideoCapture(4)
 
@@ -60,76 +60,81 @@ def Object_capture():
 
     while True:
         ret, frame = cap.read()
-        current_time = time.time()
-        if not ret:
-            print("입력이 없습니다.")
-            break
-
-        boxes, labels = object_detector.run(frame)
-
-        cv2.imshow('Webcam', frame)
-        scrinshot = []
-
-        for i, (box, label) in enumerate(zip(boxes[0], labels[0])):
-            confidence = box[4]
-            if confidence < 0.4:
-                continue
-
-            if label == 1:
-                color = (0, 255, 0)
-            elif label == 0:
-                color = (255, 0, 0)
-            else:
-                continue
-
-            x_min, y_min, x_max, y_max = map(int, box[:4])
-
-            cropped_image = frame[y_min:y_max, x_min:x_max]
-
-            scrinshot.append((cropped_image, label))  # 이미지와 레이블을 튜플로 저장
-
-        # scrinshot 배열의 원소를 모두 저장하는 부분
-        for cropped_image, label in scrinshot:
-            print("Label:", label)
-            print(len(scrinshot))
-            if not cropped_image.size == 0:
-                save_path = './crop_images' if label == 1 else './checkout'
-                if not os.path.exists(save_path):
-                    os.makedirs(save_path)
-                if label == 1:
-                    if book_image_counter >= book_max_images:
-                        print(
-                            f"{book_max_images}장의 이미지를 저장하였습니다. 프로그램을 종료합니다.")
-                        cap.release()
-                        cv2.destroyAllWindows()
-                        return
-
-                    cv2.imwrite(
-                        f"{save_path}/book_image_{book_image_counter}.jpg", cropped_image)
-                    book_photo_time = time.time()
-                    print(confidence)
-                    print(scrinshot)
-                    book_image_counter += 1
-                    print("book", book_image_counter)
-                    
-
-                elif label == 0:
-                    if person_image_counter >= person_max_images:
-                        print(
-                            f"{person_max_images}장의 이미지를 저장하였습니다. 프로그램을 종료합니다.")
-                        cap.release()
-                        cv2.destroyAllWindows()
-                        return
-
-                    cv2.imwrite(
-                        f"{save_path}/person_image_{person_image_counter}.jpg", cropped_image)
-                    person_photo_time = time.time()
-                    person_image_counter += 1
-                    print("person", person_image_counter)
-                    print(confidence)
-
+        cv2.imshow("frame", frame)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+
+    # while True:
+    # ret, frame = cap.read()
+    current_time = time.time()
+    if not ret:
+        print("입력이 없습니다.")
+        # break
+
+    boxes, labels = object_detector.run(frame)
+
+    cv2.imshow('Webcam', frame)
+    scrinshot = []
+
+    for i, (box, label) in enumerate(zip(boxes[0], labels[0])):
+        confidence = box[4]
+        if confidence < 0.4:
+            continue
+
+        if label == 1:
+            color = (0, 255, 0)
+        elif label == 0:
+            color = (255, 0, 0)
+        else:
+            continue
+
+        x_min, y_min, x_max, y_max = map(int, box[:4])
+
+        cropped_image = frame[y_min:y_max, x_min:x_max]
+
+        scrinshot.append((cropped_image, label))  # 이미지와 레이블을 튜플로 저장
+
+    # scrinshot 배열의 원소를 모두 저장하는 부분
+    for cropped_image, label in scrinshot:
+        print("Label:", label)
+        print(len(scrinshot))
+        if not cropped_image.size == 0:
+            save_path = './crop_images' if label == 1 else './checkout'
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
+            if label == 1:
+                if book_image_counter >= book_max_images:
+                    print(
+                        f"{book_max_images}장의 이미지를 저장하였습니다. 프로그램을 종료합니다.")
+                    cap.release()
+                    cv2.destroyAllWindows()
+                    return
+
+                cv2.imwrite(
+                    f"{save_path}/book_image_{book_image_counter}.jpg", cropped_image)
+                book_photo_time = time.time()
+                print(confidence)
+                print(scrinshot)
+                book_image_counter += 1
+                print("book", book_image_counter)
+
+            elif label == 0:
+                if person_image_counter >= person_max_images:
+                    print(
+                        f"{person_max_images}장의 이미지를 저장하였습니다. 프로그램을 종료합니다.")
+                    cap.release()
+                    cv2.destroyAllWindows()
+                    return
+
+                cv2.imwrite(
+                    f"{save_path}/person_image_{person_image_counter}.jpg", cropped_image)
+                person_photo_time = time.time()
+                person_image_counter += 1
+                print("person", person_image_counter)
+                print(confidence)
+
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
 
 
 Object_capture()

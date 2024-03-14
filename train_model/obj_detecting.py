@@ -60,8 +60,8 @@ class ObjectDetection:
 
 
 # 사용예제
-object_detector = ObjectDetection(model_xml='../model/model.xml', \
-                                  model_bin='../model/model.bin')
+object_detector = ObjectDetection(model_xml='../models/model.xml', \
+                                  model_bin='../models/model.bin')
 
 cap = cv2.VideoCapture(4)
 
