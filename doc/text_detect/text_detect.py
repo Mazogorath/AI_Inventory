@@ -1,49 +1,78 @@
 import cv2
 from paddleocr import PaddleOCR
 
-# 모델 초기화
-ocr = PaddleOCR(lang = "korean")
+# 문자열 비교 함수
+def contains_any_text(texts, target_texts):
+    for target_text in target_texts:
+        if contains_text(texts, target_text):
+            return True
+    return False
 
-# 이미지 읽기
-image = cv2.imread("test04.jpg")
+def contains_text(texts, target_text):
+    for text in texts:
+        if target_text in text:
+            return True
+    return False
 
-# OCR실행
-result = ocr.ocr(image)
+# OCR 수행 및 텍스트 추출 함수
+def perform_ocr(image_path):
+    # 모델 초기화
+    ocr = PaddleOCR(lang="korean")
 
-# 신뢰도 출력
-# for line in result:
-#     if len(line[1]) > 0:
-#         print(1)
-#         # print(f"텍스트: {line[0]}")
-#         # print(f"신뢰도 점수: {line[1][0]}")
-#     else:
-#         print("빈 텍스트 라인")
+    # 이미지 읽기
+    image = cv2.imread(image_path)
 
-# 텍스트 문자열 리스트 생성
-texts = []
+    # OCR 실행
+    result = ocr.ocr(image)
 
-# 결과 리스트에서 텍스트 문자열만 추출
-for line in result:
-    if len(line[1]) > 0:
-        texts.append(line[0])
+    # 텍스트 문자열 리스트 생성
+    texts = []
 
-# 텍스트 문자열 출력
-for text in texts:
-    print(text)
+    # 결과 리스트에서 텍스트 문자열만 추출
+    for line in result:
+        if len(line) > 0 and isinstance(line[0], list) and len(line[0]) > 0:
+            texts.append(line[0][1][0] + line[2][1][0])
 
-# 텍스트 문자열
-BookName = line[0][1][0]
-print(BookName)
+    return image, texts
 
-# # 이미지를 회색조로 변환
-# gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+# 텍스트 검색 및 출력 함수
+def search_and_print_text(texts, target_texts):
+    # texts 리스트 출력
+    print("인식된 텍스트:")
+    for text in texts:
+        print(text)
 
-# # 가우시안 블러 필터 적용
-# blurred_image = cv2.GaussianBlur(gray_image, (5, 5), 0)
+    # 특정 문자열 검색
+    matched_texts = []
+    for target_text in target_texts:
+        if contains_text(texts, target_text):
+            matched_texts.append(target_text)
 
-# # 이미지 이진화
-# thresh_image = cv2.threshold(blurred_image, 0, 255, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+    if len(matched_texts) > 0:
+        print(f"{', '.join(matched_texts)}가 텍스트에 포함되어 있습니다.")
+    else:
+        print("검색한 문자열이 텍스트에 포함되어 있지 않습니다.")
 
-# # 이미지 크기 조정
-# resized_image = cv2.resize(thresh_image, (640, 480))
+# 이미지에 텍스트 그리기 함수
+def draw_text_on_image(image, texts):
+    for i, text in enumerate(texts):
+        cv2.putText(image, text, (10, 30 + 20 * i), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
+# 메인 함수
+def main():
+    image_path = "test8.jpg"
+    target_texts = ["애플리케이션", "파이썬", "프로그래밍"]
+
+    image, texts = perform_ocr(image_path)
+    search_and_print_text(texts, target_texts)
+    draw_text_on_image(image, texts)
+
+    # 키 입력 대기
+    cv2.waitKey(0)
+
+    # 모든 창 닫기
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()
+    
