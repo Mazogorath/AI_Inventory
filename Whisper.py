@@ -1,81 +1,61 @@
-import pyaudio
-import wave
-import whisper
+import speech_recognition as sr
 from gtts import gTTS
 import playsound
 import sqlite3
+import time
+from io import BytesIO
+from pydub import AudioSegment
+from pydub.playback import play
 
-# 녹음 함수
-def record(filename="file.wav", record_seconds=5):
-    format = pyaudio.paInt16
-    channels = 1
-    rate = 44100
-    chunk = 1024
-    audio = pyaudio.PyAudio()
-    stream = audio.open(format=format, channels=channels,
-                        rate=rate, input=True,
-                        frames_per_buffer=chunk)
-    print("Recording...")
-    frames = []
-    for i in range(0, int(rate / chunk * record_seconds)):
-        data = stream.read(chunk)
-        frames.append(data)
-    print("Recording stopped.")
-    stream.stop_stream()
-    stream.close()
-    audio.terminate()
-    waveFile = wave.open(filename, 'wb')
-    waveFile.setnchannels(channels)
-    waveFile.setsampwidth(audio.get_sample_size(format))
-    waveFile.setframerate(rate)
-    waveFile.writeframes(b''.join(frames))
-    waveFile.close()
-    return filename
+def listen_to_speech(duration=3):
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source, duration=duration)
+        print("찾으시는 제품을 말하세요.")
+        audio_data = recognizer.listen(source)
+        try:
+            text = recognizer.recognize_google(audio_data, language='ko-KR')
+            return text
+        except sr.UnknownValueError:
+            print("다시 말씀해 주시겠습니까?.")
+        except sr.RequestError as e:
+            print(f"에러 {e}")
+        return None
 
-# Whisper를 이용한 음성 인식 함수
-def transcribe_audio(filename="file.wav"):
-    model = whisper.load_model("small") 
-    result = model.transcribe(filename, language="ko")
-    return result["text"]
-
-# 텍스트를 음성으로 변환하고 재생하는 함수
 def speak(text):
     tts = gTTS(text=text, lang='ko')
-    filename = 'response.mp3'
-    tts.save(filename)
-    playsound.playsound(filename)
+    buffer = BytesIO()
+    tts.write_to_fp(buffer)
+    buffer.seek(0)
+    
+    # BytesIO 객체에서 오디오 데이터를 로드하고 재생
+    audio = AudioSegment.from_file(buffer, format="mp3")
+    play(audio)
 
-# 데이터베이스에서 제품 정보 조회 함수 (개선)
 def find_product_info(recognized_text):
     conn = sqlite3.connect('inventory.db')
     cursor = conn.cursor()
-    
-    # 사용자의 입력에서 첫 번째 단어를 키워드로 추출
-    keyword = recognized_text.split()[0].lower()  # 공백을 기준으로 나누고, 첫 번째 단어를 소문자로 변환
-    
-    # 데이터베이스에서 키워드를 포함하는 제품 이름 찾기
-    cursor.execute("SELECT product, quantity, location FROM inventory WHERE lower(product) LIKE ?", ('%' + keyword + '%',))
+    keyword = recognized_text.split()[0].lower()
+    cursor.execute("SELECT rowid, product, quantity, location FROM inventory WHERE lower(product) LIKE ?", ('%' + keyword + '%',))
     results = cursor.fetchall()
-    conn.close()
-    
-    if results:  # 결과가 있는 경우
-        for product_name, quantity, location in results:
-            response = f"{product_name}는 {quantity}개 있고, {location}에 있습니다."
-            print(response)
-            speak(response)  # 실제 구현 환경에서는 이 줄의 주석을 제거하세요.
-    else:  # 결과가 없는 경우
+    if results:
+        response = "\n".join(f"{idx+1}: {product}, 수량: {quantity}, 위치: {location}" for idx, (rowid, product, quantity, location) in enumerate(results))
+        print(response)
+        speak(response)
+        time.sleep(0.5)
+    else:
         response = "인식된 키워드에 해당하는 제품을 찾을 수 없습니다."
         print(response)
-        speak(response)  # 실제 구현 환경에서는 이 줄의 주석을 제거하세요.
+        # speak(response)
 
-
-# 메인 실행 함수
 def main():
-    filename = record()  # 녹음 실행
-    recognized_text = transcribe_audio(filename)  # 음성 파일을 텍스트로 변환
-    print(f"인식된 텍스트: {recognized_text}")
-    find_product_info(recognized_text)  # 데이터베이스에서 제품 정보 조회 및 음성 출력
+    recognized_text = listen_to_speech()
+    if recognized_text:
+        print(f"인식된 텍스트: {recognized_text}")
+        find_product_info(recognized_text)
+
+    else:
+        print("음성 인식에 실패했습니다.")
 
 if __name__ == "__main__":
-    while True:
-        main()
+    main()
