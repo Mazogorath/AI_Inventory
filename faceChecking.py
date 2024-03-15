@@ -18,7 +18,7 @@ IMAGE_PATH: str = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), "images")
 
 # Camera Setting
-ID: int = 10
+ID: int = 4
 CAM_WIDTH: int = 640
 CAM_HEIGHT: int = 360
 FPS: int = 60
@@ -217,11 +217,11 @@ def faceCheckings(model="facenet"):
                 cv2.rectangle(disp_frame, pt1, pt2, color=(0, 255, 0))
                 cv2.putText(disp_frame, f"{employees[max_idx]}", org=(
                     box[0] + 5, box[1] + 30), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, thickness=1, color=(0, 255, 0))
-                if klist[max_idx] > 0.65:
+                if klist[max_idx] > 0.70:
                     now = datetime.datetime.now()
                     cv2.imwrite(
                         f"./Pictures/{now}_{employees[max_idx]}.jpg", disp_frame)
-                    cv2.destroyAllWindows()
+                    # cv2.destroyAllWindows()
                     return f"{employees[max_idx]}", disp_frame
 
             # Show frame with boxes
@@ -230,6 +230,9 @@ def faceCheckings(model="facenet"):
         # Press 'q' to Quit
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+        if cv2.waitKey(1) & 0xFF == ord('i'):
+            cv2.imwrite("Gong2.jpg", disp_frame)
+        
 
     # Release the Video Capture Object
     cap.release()
