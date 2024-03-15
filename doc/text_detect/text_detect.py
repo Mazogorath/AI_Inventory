@@ -32,8 +32,13 @@ def perform_ocr(image_path):
 
     # 결과 리스트에서 텍스트 문자열만 추출
     for line in result:
-        if len(line) > 0 and isinstance(line[0], list) and len(line[0]) > 0:
-            texts.append(line[0][1][0] + line[2][1][0])
+        if len(line) > 0:
+            text = ""
+            for i in range(len(line)):
+                if isinstance(line[i], list) and len(line[i]) > 0:
+                    text += line[i][1][0]
+            if text:
+                texts.append(text)
 
     return image, texts
 
@@ -63,10 +68,10 @@ def draw_text_on_image(image, texts):
 # 메인 함수
 def main():
     image_folder = "image_path"
-    target_texts = ["애플리케이션", "파이썬", "프로그래밍"]
+    target_texts = ["머신러닝", "애플리케이션"]
     processed_images = set()
+    text = []  # 텍스트를 저장할 리스트 생성
 
-    # while True:
     for filename in os.listdir(image_folder):
         if filename.endswith(".jpg") or filename.endswith(".png"):
             image_path = os.path.join(image_folder, filename)
@@ -75,15 +80,21 @@ def main():
                 search_and_print_text(texts, target_texts)
                 draw_text_on_image(image, texts)
                 processed_images.add(image_path)
-                cv2.imshow("Image", image)
+                print(image_path)
 
-        # key = cv2.waitKey(1) & 0xFF
-        # if key == 27:
-        #  break
-        # time.sleep(1)  # 1초마다 새로운 이미지 확인
+                # 텍스트 리스트를 파일로 저장
+                output_file = os.path.join(image_folder, f"{os.path.splitext(filename)[0]}_text.txt")
+                with open(output_file, "w", encoding="utf-8") as file:
+                    file.write("\n".join(texts))
 
-    # 모든 창 닫기
-    cv2.destroyAllWindows()
+                # 텍스트를 리스트에 추가
+                text.append(texts)
+                print(texts)
+
+    # 텍스트 리스트 출력
+    print("텍스트 리스트:")
+    for item in text:
+        print(item)
 
 if __name__ == "__main__":
     main()
