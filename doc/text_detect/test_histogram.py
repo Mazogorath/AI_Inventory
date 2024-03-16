@@ -2,6 +2,7 @@ import os
 import cv2
 from paddleocr import PaddleOCR
 import time
+import numpy as np
 
 # 문자열 비교 함수
 def contains_any_text(texts, target_texts):
@@ -24,8 +25,14 @@ def perform_ocr(image_path):
     # 이미지 읽기
     image = cv2.imread(image_path)
 
+    # 이미지를 흑백으로 변환
+    gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # 히스토그램 평활화 적용
+    equalized_image = cv2.equalizeHist(gray_image)
+
     # OCR 실행
-    result = ocr.ocr(image)
+    result = ocr.ocr(equalized_image)
 
     # 텍스트 문자열 리스트 생성
     texts = []
@@ -40,7 +47,7 @@ def perform_ocr(image_path):
             if text:
                 texts.append(text)
 
-    return image, texts
+    return equalized_image, texts
 
 # 텍스트 검색 및 출력 함수
 def search_and_print_text(texts, target_texts):
@@ -61,9 +68,9 @@ def search_and_print_text(texts, target_texts):
         print("검색한 문자열이 텍스트에 포함되어 있지 않습니다.")
 
 # 이미지에 텍스트 그리기 함수
-def draw_text_on_image(image, texts):
+def draw_text_on_image(equalized_image, texts):
     for i, text in enumerate(texts):
-        cv2.putText(image, text, (10, 30 + 20 * i), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+        cv2.putText(equalized_image, text, (10, 30 + 20 * i), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
 # 두 문자열의 일치율 계산 함수
 def calculate_match_ratio(str1, str2):
@@ -86,9 +93,9 @@ def main():
         if filename.endswith(".jpg") or filename.endswith(".png"):
             image_path = os.path.join(image_folder, filename)
             if image_path not in processed_images:
-                image, texts = perform_ocr(image_path)
+                equalized_image, texts = perform_ocr(image_path)
                 search_and_print_text(texts, target_texts)
-                draw_text_on_image(image, texts)
+                draw_text_on_image(equalized_image, texts)
                 processed_images.add(image_path)
                 print(image_path)
 
@@ -110,4 +117,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
