@@ -7,14 +7,16 @@ import time
 from text_detect import TEXT
 from obj_detect import Object_capture
 
+# 디버그하기 편하도록 전역화, 나중에 다 지울 예정
 Indoors = []
 Inventory = []
+Text_books = []
+Whisper_books = []
 carried_out = {}
+serial_port = {'A': '/dev/SomwhereA',
+               'B': '/dev/SomewhereB', 'C': '/dev/SomewhereC'}
+camera_id = {'A': 4, 'B': 10, 'C': 16}
 count = 0
-Location_start_check = 'N'
-
-serial_port = '/dev/ttyACM0'
-ser = serial.Serial(serial_port, baudrate=9600, timeout=1)
 
 
 def UID_check():
@@ -22,19 +24,17 @@ def UID_check():
     while True:
         try:
             data = ser.readline().decode('utf-8').rstrip()
-            print(data)
             if len(data) == 8:
+                print(data)
                 UID = data
                 if UID not in carried_out:
                     if time.time() - delay_time > 1.0:
                         carried_out[UID] = time.time()
-                        print(f"{UID}반출")
                         speak(f"{UID}반출등록하였습니다")
-                        print(f"현재 재고 : {carried_out}")
+                        print(f"반출 재고 : {carried_out}")
                 elif UID in carried_out:
                     if time.time() - carried_out[UID] > 5:
                         del carried_out[UID]
-                        print(f"{UID}반환")
                         speak(f"{UID}반환되었습니다")
                         print(f"현재 재고 : {carried_out}")
                         delay_time = time.time()
@@ -43,62 +43,66 @@ def UID_check():
 
 
 def Location_check():
-    global Location_start_check
-    time.sleep(0.5)
-    Object_capture()
-    time.sleep(0.5)
-    TEXT()
-    time.sleep(0.5)
-    for i in range(0, 5):
+    start = time.time()
+    Inventory.clear()
+    while True:
         data = ser.readline().decode('utf-8').rstrip()
         if len(data) == 8 and data not in Inventory:
             Inventory.append(data)
-            print(f"현재 재고 : {Inventory}")
             print(data)
-    Location_start_check = 'N'
+        if time.time() - start > 5:
+            break
+    print(f"현재 재고 : {Inventory}")
 
 
-def Bookcapture():
-    Object_capture()
-    TEXT()
-
-
-def userInput():
-    global Location_start_check
-    while True:
-        Location_start_check = input()
+def Bookcapture(location):
+    global Text_books, camera_id
+    if location in camera_id:
+        Object_capture(camera_id[location])
+    time.sleep(1)
+    Text_books = TEXT()
+    print(Text_books)
 
 
 def main_program():
-    global Location_start_check
+    global Whisper_books
     while True:
-        try:
-            name, _ = faceCheckings()
-            if name is not None:
-                if name not in Indoors:
-                    Indoors.append(name)
-                    print(Indoors)
-                    speak(f"{name}님 무엇을 도와드릴까요?")
-                    main()
-                elif name in Indoors:
-                    Indoors.remove(name)
-                    print(Indoors)
-                    speak(f"{name}님 안녕히 가세요")
-            if Location_start_check == 'R':
-                Location_check()
-                time.sleep(0.5)
-        except Exception as e:
-            print(f"오류 발생 : {e}")
+        name, _ = faceCheckings()
+        if name is not None:
+            if name not in Indoors:
+                Indoors.append(name)
+                print(Indoors)
+                speak(f"{name}님 무엇을 도와드릴까요?")
+                Whisper_books = main()
+                print(Whisper_books)
+            elif name in Indoors:
+                Indoors.remove(name)
+                print(Indoors)
+                speak(f"{name}님 안녕히 가세요")
 
+
+def Location_check(location, Whisper_books):
+    if location in serial_port:
+        ser = serial.Serial(serial_port[location], baudrate=9600, timeout=1)
+        for i in range(0, 100):
+            data = ser.readline().decode('utf-8').rstrip()
+            if len(data) == 8 and data not in Inventory:
+                Inventory.append(data)
+        for i in range(len(Inventory)):
+            if i in Whisper_books:
+                for j in range(len(Whisper_books)):
+                    if Inventory[i] == Whisper_books[j][2]:
+                        print("Profit!")
+                        return
+
+
+main_program()
 
 # thread1 = threading.Thread(target=main_program)
 # thread2 = threading.Thread(target=UID_check)
 # thread3 = threading.Thread(target=Bookcapture)
 
 # thread1.start()
+# thread2.Daemon = True
 # thread2.start()
 # thread3.start()
-
-# thread1.join()
-# thread2.join()
-# thread3.join()
