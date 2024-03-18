@@ -82,39 +82,43 @@ def calculate_match_ratio(str1, str2):
     return match_ratio
 
 # 메인 함수
-def main():
+def image_main():
     image_folder = "image_path"
     target_texts = ["머신러닝", "애플리케이션"]
     processed_images = set()
-    list1 = ["파이썬과Qt6로GUI애플리케이션만들기5/e"]  # list1 생성
+    list1 = []  # list1 생성
     list2 = []  # list2 생성
 
-    for filename in os.listdir(image_folder): # image_folder 경로에 있는 모든 파일의 이름을 리스트로 가져옴
-        if filename.endswith(".jpg") or filename.endswith(".png"):
-            image_path = os.path.join(image_folder, filename) # 파일의 전체 경로 생성
-            if image_path not in processed_images:
-                equalized_image, texts = perform_ocr(image_path) # 이미지에서 텍스트 추출 및 이미지 균일화
-                search_and_print_text(texts, target_texts) # 함수를 호출하여 추출된 텍스트에서 특정 문자열을 검색 및 출력
-                draw_text_on_image(equalized_image, texts) # 함수 호출 후 균일화된 이미지에 추출된 텍스트를 그림
-                processed_images.add(image_path) # 현재 처리된 이미지의 경로를 processed_images 집합에 추가
-                print(image_path) # 현재 처리중인 이미지 파일의 경로를 출력
+    while True:
+        recognized_text = main()  # 음성 인식 실행
+        list1.append(recognized_text)  # list1에 인식된 텍스트 추가
 
-                # 텍스트 리스트를 파일로 저장
-                output_file = os.path.join(image_folder, f"{os.path.splitext(filename)[0]}_text.txt")
-                with open(output_file, "w", encoding="utf-8") as file: # output_file 경로에 해당하는 파일 쓰기모드로 연다
-                    file.write("\n".join(texts)) # 추출된 텍스트를 파일에 쓰기
+        for filename in os.listdir(image_folder):
+            if filename.endswith(".jpg") or filename.endswith(".png"):
+                image_path = os.path.join(image_folder, filename)
+                if image_path not in processed_images:
+                    image, texts = perform_ocr(image_path)
+                    search_and_print_text(texts, target_texts)
+                    draw_text_on_image(image, texts)
+                    processed_images.add(image_path)
+                    print(image_path)
 
-                # 텍스트를 list2에 추가
-                list2.extend(texts)
+                    # 텍스트 리스트를 파일로 저장
+                    output_file = os.path.join(image_folder, f"{os.path.splitext(filename)[0]}_text.txt")
+                    with open(output_file, "w", encoding="utf-8") as file:
+                        file.write("\n".join(texts))
 
-    # list1과 list2의 첫 번째 요소를 문자열로 변환
-    str1 = ''.join(list1)
-    str2 = ''.join(list2)
+                    # 텍스트를 list2에 추가
+                    list2.extend(texts)
 
-    # 일치율 계산 및 출력
-    match_ratio = calculate_match_ratio(str1, str2) # str1, str2의 일치율 계산
-    print(f"일치율: {match_ratio:.2f}%") # 계산된 일치율 출력
+        # list1과 list2의 첫 번째 요소를 문자열로 변환
+        str1 = ''.join(list1)
+        str2 = ''.join(list2)
+
+        # 일치율 계산 및 출력
+        match_ratio = calculate_match_ratio(str1, str2)
+        print(f"일치율: {match_ratio:.2f}%")
 
 if __name__ == "__main__":
-    main()
+    image_main()
 
