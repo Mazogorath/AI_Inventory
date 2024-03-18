@@ -49,7 +49,7 @@ def perform_ocr(image_path):
 
     return equalized_image, texts
 
-# 텍스트 검색 및 출력 함수
+# 특정 텍스트 검색 및 출력 함수
 def search_and_print_text(texts, target_texts):
     # texts 리스트 출력
     print("인식된 텍스트:")
@@ -57,12 +57,12 @@ def search_and_print_text(texts, target_texts):
         print(text)
 
     # 특정 문자열 검색
-    matched_texts = []
+    matched_texts = [] # 빈 리스트 초기화
     for target_text in target_texts:
         if contains_text(texts, target_text):
-            matched_texts.append(target_text)
+            matched_texts.append(target_text) # texts list에서 모든 target_text들을 저장
 
-    if len(matched_texts) > 0:
+    if len(matched_texts) > 0: # 리스트의 길이 확인
         print(f"{', '.join(matched_texts)}가 텍스트에 포함되어 있습니다.")
     else:
         print("검색한 문자열이 텍스트에 포함되어 있지 않습니다.")
@@ -76,9 +76,9 @@ def draw_text_on_image(equalized_image, texts):
 def calculate_match_ratio(str1, str2):
     set1 = set(str1)
     set2 = set(str2)
-    intersection = set1.intersection(set2)
-    union = set1.union(set2)
-    match_ratio = len(intersection) / len(union) * 100
+    intersection = set1.intersection(set2) # set1,set2의 교집합을 구함
+    union = set1.union(set2) # set1,set2의 합집합을 구함
+    match_ratio = len(intersection) / len(union) * 100 # 일치율을 계산하여 백분율로 나타냄
     return match_ratio
 
 # 메인 함수
@@ -89,20 +89,20 @@ def main():
     list1 = ["파이썬과Qt6로GUI애플리케이션만들기5/e"]  # list1 생성
     list2 = []  # list2 생성
 
-    for filename in os.listdir(image_folder):
+    for filename in os.listdir(image_folder): # image_folder 경로에 있는 모든 파일의 이름을 리스트로 가져옴
         if filename.endswith(".jpg") or filename.endswith(".png"):
-            image_path = os.path.join(image_folder, filename)
+            image_path = os.path.join(image_folder, filename) # 파일의 전체 경로 생성
             if image_path not in processed_images:
-                equalized_image, texts = perform_ocr(image_path)
-                search_and_print_text(texts, target_texts)
-                draw_text_on_image(equalized_image, texts)
-                processed_images.add(image_path)
-                print(image_path)
+                equalized_image, texts = perform_ocr(image_path) # 이미지에서 텍스트 추출 및 이미지 균일화
+                search_and_print_text(texts, target_texts) # 함수를 호출하여 추출된 텍스트에서 특정 문자열을 검색 및 출력
+                draw_text_on_image(equalized_image, texts) # 함수 호출 후 균일화된 이미지에 추출된 텍스트를 그림
+                processed_images.add(image_path) # 현재 처리된 이미지의 경로를 processed_images 집합에 추가
+                print(image_path) # 현재 처리중인 이미지 파일의 경로를 출력
 
                 # 텍스트 리스트를 파일로 저장
                 output_file = os.path.join(image_folder, f"{os.path.splitext(filename)[0]}_text.txt")
-                with open(output_file, "w", encoding="utf-8") as file:
-                    file.write("\n".join(texts))
+                with open(output_file, "w", encoding="utf-8") as file: # output_file 경로에 해당하는 파일 쓰기모드로 연다
+                    file.write("\n".join(texts)) # 추출된 텍스트를 파일에 쓰기
 
                 # 텍스트를 list2에 추가
                 list2.extend(texts)
@@ -112,8 +112,9 @@ def main():
     str2 = ''.join(list2)
 
     # 일치율 계산 및 출력
-    match_ratio = calculate_match_ratio(str1, str2)
-    print(f"일치율: {match_ratio:.2f}%")
+    match_ratio = calculate_match_ratio(str1, str2) # str1, str2의 일치율 계산
+    print(f"일치율: {match_ratio:.2f}%") # 계산된 일치율 출력
 
 if __name__ == "__main__":
     main()
+
