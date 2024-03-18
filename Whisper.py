@@ -1,13 +1,17 @@
 import speech_recognition as sr
 from gtts import gTTS
-import sqlite3
-import time
 from io import BytesIO
 from pydub import AudioSegment
 from pydub.playback import play
-import datetime
 
-# 음성 인식 관련 코드
+products = [
+    {"ID": 1, "제품 이름": "파이썬으로배우는머신러닝의교과서", "수량": 10, "위치": "A", "가격": 34000, "저자": "이토마코토", "UID": 12345},
+    {"ID": 2, "제품 이름": "개발자를위한머신러닝딥러닝", "수량": 5, "위치": "B", "가격": 30000, "저자": "34000", "UID": 12346},
+    {"ID": 3, "제품 이름": "파이썬과Qt6로GUI애플리케이션만들기", "수량": 15, "위치": "A", "가격": 28000, "저자": "미상", "UID": 12347},
+    {"ID": 4, "제품 이름": "라즈베리파이3를활용한임베디드리눅스프로그래밍", "수량": 20, "위치": "C", "가격": 19000, "저자": "미상", "UID": 12348}
+]
+
+# 음성 인식 함수
 def listen_to_speech(duration=3):
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
@@ -20,10 +24,12 @@ def listen_to_speech(duration=3):
             return text
         except sr.UnknownValueError:
             print("다시 말씀해 주시겠습니까?.")
+            return None
         except sr.RequestError as e:
             print(f"에러 {e}")
-        return None
+            return None
 
+# 텍스트를 음성으로 변환하여 출력하는 함수
 def speak(text):
     tts = gTTS(text=text, lang='ko')
     buffer = BytesIO()
@@ -32,24 +38,23 @@ def speak(text):
     audio = AudioSegment.from_file(buffer, format="mp3")
     play(audio)
 
-def find_product_info(recognized_text):
-    conn = sqlite3.connect('inventory.db')
-    cursor = conn.cursor()
+# 제품 정보 검색 함수
+def find_product_info(recognized_text, products):
     keyword = recognized_text.split()[0].lower()
-    cursor.execute("SELECT rowid, product, quantity, location, price, author, uid FROM inventory WHERE lower(product) LIKE ?", ('%' + keyword + '%',))
-    results = cursor.fetchall()
+    results = [product for product in products if keyword in product["제품 이름"].lower()]
+
     if results:
-        # 여기에서 언팩하는 필드의 수를 데이터베이스의 결과에 맞게 수정
-        response = "\n".join(f"{idx+1}: {product}" for idx, (rowid, product, quantity, location, price, author, uid) in enumerate(results))
+        response = "\n".join(f"{idx+1}: {product['제품 이름']}" for idx, product in enumerate(results))
         print(response)
         
-        # 사용자가 번호를 선택할 수 있도록 요청
         selection = input("더 자세한 정보를 보려면 번호를 입력하세요: ")
         try:
             selection = int(selection) - 1
             if 0 <= selection < len(results):
-                _, product, quantity, location, price, author, uid = results[selection]
-                print(f"선택된 제품: {product}, 수량: {quantity}, 위치: {location}, 가격: {price}, 저자: {author}, UID: {uid}")
+                product = results[selection]
+                details = f"{product['제품 이름']}, 수량: {product['수량']}, 위치: {product['위치']}, 가격: {product['가격']}, 저자: {product['저자']}, UID: {product['UID']}"
+                print(details)
+                speak(details)
             else:
                 print("유효하지 않은 번호입니다.")
         except ValueError:
@@ -59,14 +64,15 @@ def find_product_info(recognized_text):
     else:
         response = "인식된 키워드에 해당하는 제품을 찾을 수 없습니다."
         print(response)
+        speak(response)
         return False
 
-
+# 메인 함수
 def main():
     while True:
         recognized_text = listen_to_speech()
         if recognized_text:
-            find_product_info(recognized_text)
+            find_product_info(recognized_text, products)
         else:
             print("음성 인식에 실패했습니다.")
 
