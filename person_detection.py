@@ -60,61 +60,66 @@ class ObjectDetection:
         return object, confidence, box
 
 
-# 사용예제
-object_detector = ObjectDetection(model_xml='./models/model.xml',
-                                  model_bin='./models/model.bin')
+def person_detect(frame=None):
+    # 사용예제
+    object_detector = ObjectDetection(model_xml='./models/model.xml',
+                                      model_bin='./models/model.bin')
+    if frame is not None:
+        cap = cv2.VideoCapture(4)
 
-cap = cv2.VideoCapture(4)
+    # 프로그램 시작 시간
+    start_time = datetime.datetime.now()
 
-# 프로그램 시작 시간
-start_time = datetime.datetime.now()
+    while True:
+        if frame is not None:
+            for i in range(0, 50):
+                ret, frame = cap.read()
+                # cv2.imshow("frame", frame)
 
-while True:
-    for i in range(0, 50):
-        ret, frame = cap.read()
-        cv2.imshow("frame", frame)
+            if not ret:
+                print("입력이 없습니다.")
+                break
 
-    current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%s")
+        current_time = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%s")
 
-    if not ret:
-        print("입력이 없습니다.")
-        break
+        label, confidence, box = object_detector.run(frame)
 
-    label, confidence, box = object_detector.run(frame)
+        # 라벨이 "person"인 경우
+        if label == "person":
+            save_path = './checkout'  # 이미지 저장 경로 설정
+            # 디렉토리가 없으면 생성
+            if not os.path.exists(save_path):
+                os.makedirs(save_path)
 
-    # 라벨이 "person"인 경우
-    if label == "person":
-        save_path = './checkout'  # 이미지 저장 경로 설정
-        # 디렉토리가 없으면 생성
-        if not os.path.exists(save_path):
-            os.makedirs(save_path)
+            # 바운딩 박스 좌표
+            x_min, y_min, x_max, y_max = map(int, box[:4])
 
-        # 바운딩 박스 좌표
-        x_min, y_min, x_max, y_max = map(int, box[:4])
+            # 바운딩 박스에 해당하는 부분만 자르기
+            cropped_image = frame[y_min:y_max, x_min:x_max]
 
-        # 바운딩 박스에 해당하는 부분만 자르기
-        cropped_image = frame[y_min:y_max, x_min:x_max]
+            # 이미지가 비어 있지 않은 경우에만 저장
+            if not cropped_image.size == 0:
+                file_name = f'{save_path}/checkout_time_{current_time}.jpg'
+                # 이미지를 저장
+                cv2.imwrite(file_name, cropped_image)
+                print(label)
+                # cap.release()
+                # cv2.destroyAllWindows()
+                return file_name
+                break
 
-        # 이미지가 비어 있지 않은 경우에만 저장
-        if not cropped_image.size == 0:
-            file_name = f'{save_path}/checkout_time_{current_time}.jpg'
-            # 이미지를 저장
-            cv2.imwrite(file_name, cropped_image)
-            print(label)
+            elif label == "book":
+                continue
+
+        # 30초동안 인식되는 내용이 없는 경우 프로그램 종료
+        if (datetime.datetime.now() - start_time).total_seconds() >= 30:
             break
 
-        elif label == "book":
-            continue
+        # 1ms 마다 키 입력 대기
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
 
-    # 30초동안 인식되는 내용이 없는 경우 프로그램 종료
-    if (datetime.datetime.now() - start_time).total_seconds() >= 30:
-        break
-
-    # 1ms 마다 키 입력 대기
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-
-# 비디오 캡처 객체 해제
-cap.release()
-# 모든 창 닫기
-cv2.destroyAllWindows()
+    # 비디오 캡처 객체 해제
+    # cap.release()
+    # 모든 창 닫기
+    cv2.destroyAllWindows()

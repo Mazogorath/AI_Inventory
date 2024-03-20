@@ -5,6 +5,8 @@ import ipywidgets as widgets
 import os
 import time
 
+# ID: "https://192.168.0.136:8080/stream"
+
 
 class ObjectDetection:
     def __init__(self, model_xml, model_bin, device="AUTO"):
@@ -25,8 +27,8 @@ class ObjectDetection:
         self.boxes_output_keys = self.compiled_model.output(0)
         self.labels_output_keys = self.compiled_model.output(1)
 
-        self.height = 736
-        self.width = 992
+        self.height = 640
+        self.width = 640
 
     def preprocess_image(self, image):
         resized_image = cv2.resize(image, (self.width, self.height))
@@ -45,41 +47,46 @@ class ObjectDetection:
         return boxes, labels
 
 
-def Object_capture():
+def Object_capture(ID):
     object_detector = ObjectDetection(model_xml='./models/model.xml',
                                       model_bin='./models/model.bin')
 
-    cap = cv2.VideoCapture(4)
+    cap = cv2.VideoCapture(ID)
 
     book_image_counter = 0
     person_image_counter = 0
     book_max_images = 201
     person_max_images = 201
-    book_photo_time = time.time()
-    person_photo_time = time.time()
+    # book_photo_time = time.time()
+    # person_photo_time = time.time()
 
     # while True:
     for i in range(0, 50):
         ret, frame = cap.read()
+        if not ret:
+            print("입력이 없습니다.")
+            break
+
         cv2.imshow("frame", frame)
         # if cv2.waitKey(1) & 0xFF == ord('q'):
         #     break
 
     # while True:
     # ret, frame = cap.read()
-    current_time = time.time()
-    if not ret:
-        print("입력이 없습니다.")
+    # current_time = time.time()
+
         # break
 
     boxes, labels = object_detector.run(frame)
 
-    cv2.imshow('Webcam', frame)
+    # 2번 imshow되어 주석처리 while문 사용 시 필요 구문으로 삭제 안함
+    # cv2.imshow('Webcam', frame)
     scrinshot = []
 
     for i, (box, label) in enumerate(zip(boxes[0], labels[0])):
         confidence = box[4]
-        if confidence < 0.4:
+        # print(confidence)
+        if confidence < 0.89:
             continue
 
         if label == 1:
@@ -91,7 +98,19 @@ def Object_capture():
 
         x_min, y_min, x_max, y_max = map(int, box[:4])
 
+        # 좌표 보정
+        x_min = max(0, x_min)
+        y_min = max(0, y_min)
+        x_max = min(frame.shape[1], x_max)
+        y_max = min(frame.shape[0], y_max)
+
+        # 바운딩 박스 및 confidence 생성 구문 추가
+        # cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+        # cv2.putText(frame, f'Confidence: {confidence}', (x_min, y_min), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        cv2.imwrite("check.jpg", frame)
+
         cropped_image = frame[y_min:y_max, x_min:x_max]
+        # print(confidence)
 
         scrinshot.append((cropped_image, label))  # 이미지와 레이블을 튜플로 저장
 
@@ -100,6 +119,9 @@ def Object_capture():
         # print("Label:", label)
         # print(len(scrinshot))
         if not cropped_image.size == 0:
+            # 검사용 코드 추가
+            # print(f"Bounding Box Coordinates: {x_min}, {y_min}, {x_max}, {y_max}")
+            # print(f"cropped_image size: {cropped_image.size}")
             save_path = './crop_images' if label == 1 else './checkout'
             if not os.path.exists(save_path):
                 os.makedirs(save_path)
@@ -109,11 +131,13 @@ def Object_capture():
                         f"{book_max_images}장의 이미지를 저장하였습니다. 프로그램을 종료합니다.")
                     # cap.release()
                     cv2.destroyAllWindows()
-                    return
-
+                    print(book_image_counter)
+                    return len(scrinshot)
                 cv2.imwrite(
                     f"{save_path}/book_image_{book_image_counter}.jpg", cropped_image)
-                book_photo_time = time.time()
+                # 카메라 위치 조정확인을 위한 구문
+                # cv2.imwrite(f"{save_path}/check.jpg", frame)
+                # book_photo_time = time.time()
                 # print(confidence)
                 # print(scrinshot)
                 book_image_counter += 1
@@ -129,7 +153,9 @@ def Object_capture():
 
                 cv2.imwrite(
                     f"{save_path}/person_image_{person_image_counter}.jpg", cropped_image)
-                person_photo_time = time.time()
+                # 카메라 위치 조정확인을 위한 구문
+                # cv2.imwrite(f"{save_path}/check.jpg", frame)
+                # person_photo_time = time.time()
                 person_image_counter += 1
                 print("person", person_image_counter)
                 print(confidence)
@@ -138,4 +164,5 @@ def Object_capture():
         #     break
 
 
-Object_capture()
+# url = "http://192.168.0.136:8080/stream"
+# Object_capture(url)

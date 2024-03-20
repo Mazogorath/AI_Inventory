@@ -17,12 +17,6 @@ RECOG_MODEL_PATH_2: str = os.path.join(
 IMAGE_PATH: str = os.path.join(
     os.path.abspath(os.path.dirname(__file__)), "images")
 
-# Camera Setting
-ID: int = 4
-CAM_WIDTH: int = 640
-CAM_HEIGHT: int = 360
-FPS: int = 60
-
 # Make Lists with Image Files
 raw_list = os.listdir(IMAGE_PATH)
 file_list = []
@@ -82,7 +76,7 @@ def detect_faces(
     image: np.ndarray,
     w: int,
     h: int,
-    threshold: float = 0.9,
+    threshold: float = 0.8,
 ) -> tuple:
 
     result = model(inputs=[image])[output_layer].squeeze()
@@ -155,31 +149,46 @@ def processPictures(target="CPU", model="facenet"):
     return d_model, d_output_layer, d_H, d_W, r_model, r_output_layer, r_H, r_W
 
 
-def faceCheckings(model="facenet"):
+def faceCheckings(model="facenet", mode="Video", image=None, ID=4, frame2=None):
+
+    # Camera Setting
+    CAM_WIDTH: int = 640
+    CAM_HEIGHT: int = 360
+    FPS: int = 60
 
     # Process Employee's pictures into reference
     d_model, d_output_layer, d_H, d_W, r_model, r_output_layer, r_H, r_W = processPictures()
 
-    # Initialize Video Capture Object
-    if platform.system() != "Windows":
-        cap = cv2.VideoCapture(ID)
-    else:
-        cap = cv2.VideoCapture(ID, cv2.CAP_DSHOW)
+    if mode == "Video":
+        # Initialize Video Capture Object
+        if platform.system() != "Windows":
+            cap = cv2.VideoCapture(ID)
+        else:
+            cap = cv2.VideoCapture(ID, cv2.CAP_DSHOW)
 
-    # Set parameters of capture object
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, CAM_WIDTH)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, CAM_HEIGHT)
-    cap.set(cv2.CAP_PROP_FPS, FPS)
+        # Set parameters of capture object
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, CAM_WIDTH)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, CAM_HEIGHT)
+        cap.set(cv2.CAP_PROP_FPS, FPS)
 
     # Read data from Video Capture Object
     while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
+        if mode == "Video":
+            ret, frame = cap.read()
+            if not ret:
+                break
+
+        if mode != "Video":
+            frame = cv2.imread(image)
+            frame = cv2.resize(frame, (160, 160))
+
+        if frame2 is not None:
+            frame = frame2
 
         # Make a Copy for Processing and Displaying
         temp_frame = frame.copy()
         disp_frame = frame.copy()
+        # print(disp_frame)
 
         # Apply CLAHE
         for i in range(3):
@@ -207,6 +216,7 @@ def faceCheckings(model="facenet"):
             klist = []
             for j in reference_embeddings:
                 klist.append(cosine_similarity(j, embeddings)[0][0])
+            # print(klist)
 
             # Highlight Employee's Face
             max_idx = np.argmax(klist)
@@ -217,7 +227,7 @@ def faceCheckings(model="facenet"):
                 cv2.rectangle(disp_frame, pt1, pt2, color=(0, 255, 0))
                 cv2.putText(disp_frame, f"{employees[max_idx]}", org=(
                     box[0] + 5, box[1] + 30), fontFace=cv2.FONT_HERSHEY_SIMPLEX, fontScale=1, thickness=1, color=(0, 255, 0))
-                if klist[max_idx] > 0.70:
+                if klist[max_idx] > 0.75:
                     now = datetime.datetime.now()
                     cv2.imwrite(
                         f"./Pictures/{now}_{employees[max_idx]}.jpg", disp_frame)
@@ -225,20 +235,16 @@ def faceCheckings(model="facenet"):
                     return f"{employees[max_idx]}", disp_frame
 
             # Show frame with boxes
-            cv2.imshow("Feed", disp_frame)
+            # cv2.imshow("Feed", disp_frame)
 
         # Press 'q' to Quit
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
         if cv2.waitKey(1) & 0xFF == ord('i'):
             cv2.imwrite("Gong2.jpg", disp_frame)
-        
 
     # Release the Video Capture Object
     cap.release()
 
     # Destroy all cv2 Windows
-    cv2.destroyWindow("Feed")
-
-
-faceCheckings()
+    # cv2.destroyWindow("Feed")

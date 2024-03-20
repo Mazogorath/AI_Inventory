@@ -5,20 +5,21 @@ from pydub import AudioSegment
 from pydub.playback import play
 
 products = [
-    {"ID": 1, "제품 이름": "파이썬으로배우는머신러닝의교과서", "수량": 10, "위치": "A", "가격": 34000, "저자": "이토마코토", "UID": 12345},
-    {"ID": 2, "제품 이름": "개발자를위한머신러닝딥러닝", "수량": 5, "위치": "B", "가격": 30000, "저자": "34000", "UID": 12346},
-    {"ID": 3, "제품 이름": "파이썬과Qt6로GUI애플리케이션만들기", "수량": 15, "위치": "A", "가격": 28000, "저자": "미상", "UID": 12347},
-    {"ID": 4, "제품 이름": "라즈베리파이3를활용한임베디드리눅스프로그래밍", "수량": 20, "위치": "C", "가격": 19000, "저자": "미상", "UID": 12348}
+    {"ID": 1, "제품 이름": "파이썬으로배우는머신러닝의교과서", "수량": 10, "위치": "A", "가격": 34000, "저자": "이토마코토", "UID": '19edde7c'},
+    {"ID": 2, "제품 이름": "개발자를위한머신러닝딥러닝", "수량": 5, "위치": "B", "가격": 30000, "저자": "34000", "UID": '39adde7c'},
+    {"ID": 3, "제품 이름": "파이썬과Qt6로GUI애플리케이션만들기", "수량": 15, "위치": "A", "가격": 28000, "저자": "미상", "UID": 'e7c8b84e'},
+    {"ID": 4, "제품 이름": "라즈베리파이3를활용한임베디드리눅스프로그래밍", "수량": 20, "위치": "C", "가격": 19000, "저자": "미상", "UID": 'b9e9e37c'}
 ]
 
 # 음성 인식 함수
-def listen_to_speech(duration=3):
+def listen_to_speech(duration=1):
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
         recognizer.adjust_for_ambient_noise(source, duration=duration)
         print("찾으시는 제품을 말하세요.")
         audio_data = recognizer.listen(source)
         try:
+            print("Loading")
             text = recognizer.recognize_google(audio_data, language='ko-KR')
             print(f"인식된 텍스트: {text}")
             return text
@@ -54,13 +55,13 @@ def find_product_info(recognized_text, products):
                 product = results[selection]
                 details = f"{product['제품 이름']}, 수량: {product['수량']}, 위치: {product['위치']}, 가격: {product['가격']}, 저자: {product['저자']}, UID: {product['UID']}"
                 print(details)
-                speak(details)
+                # speak(details)
             else:
                 print("유효하지 않은 번호입니다.")
         except ValueError:
             print("숫자를 입력해야 합니다.")
         
-        return True
+        return details
     else:
         response = "인식된 키워드에 해당하는 제품을 찾을 수 없습니다."
         print(response)
