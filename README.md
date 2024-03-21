@@ -4,15 +4,15 @@
 
 ## High Level Design
 
-    (프로젝트 아키텍쳐 기술, 전반적인 diagram 으로 설명을 권장)
+<img src="https://github.com/Mazogorath/AI_Inventory/tree/main/doc/Images/Flowchart.jpg" width="40%" height="30%" title="px(픽셀) 크기 설정" alt="Flowchart"></img>
+<img src="https://github.com/Mazogorath/AI_Inventory/tree/main/doc/Images/High-Level-Design.png" width="40%" height="30%" title="px(픽셀) 크기 설정" alt="HighLevelDesign"></img>
+<img src="https://github.com/Mazogorath/AI_Inventory/tree/main/doc/Images/Low-Level-Design.png" width="40%" height="30%" title="px(픽셀) 크기 설정" alt="LowLevelDesign"></img>
 
 ## Clone code
 
     git clone https://github.com/Mazogorath/AI_Inventory.git
 
 ## Prerequite
-
-    (프로잭트를 실행에 필요한 dependencies 및 configuration, 설치 및 설정 방법)
 
 python -m venv .venv<br>
 source .venv/bin/activate<br>
@@ -32,19 +32,14 @@ make install
 
 ## Steps to run
 
-    (프로젝트 실행방법에 대해서 기술, 특별한 사용방법이 있다면 같이 기술)
-
-cd ~/xxxx
-source .venv/bin/activate
-
-cd /path/to/repo/xxx/
-python total_gui.py
+python3 total_gui.py
 
 ## Output
 
-    (프로젝트 실행 화면 캡쳐)
-
-./result.jpg
+<img src="https://github.com/Mazogorath/AI_Inventory/tree/main/doc/Images/UI1.png" width="40%" height="30%" title="px(픽셀) 크기 설정" alt="UI1"></img>
+<img src="https://github.com/Mazogorath/AI_Inventory/tree/main/doc/Images/UI2.png" width="40%" height="30%" title="px(픽셀) 크기 설정" alt="UI2"></img>
+<img src="https://github.com/Mazogorath/AI_Inventory/tree/main/doc/Images/UI3.png" width="40%" height="30%" title="px(픽셀) 크기 설정" alt="UI3"></img>
+<img src="https://github.com/Mazogorath/AI_Inventory/tree/main/doc/Images/UI4.png" width="40%" height="30%" title="px(픽셀) 크기 설정" alt="UI4"></img>
 
 ## Appendix
 
