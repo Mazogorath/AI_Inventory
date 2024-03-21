@@ -16,7 +16,9 @@
 
 python -m venv .venv<br>
 source .venv/bin/activate<br>
-pip install -r requirements.txt
+sudo apt-get install portaudio19-dev<br>
+sudo apt-get install ffmpeg<br>
+pip install -r requirements.txt<br>
 
 ## Steps to build
 
@@ -36,7 +38,7 @@ cd ~/xxxx
 source .venv/bin/activate
 
 cd /path/to/repo/xxx/
-python demo.py -i xxx -m yyy -d zzz
+python total_gui.py
 
 ## Output
 
@@ -45,9 +47,5 @@ python demo.py -i xxx -m yyy -d zzz
 ./result.jpg
 
 ## Appendix
-
-    (참고 자료 및 알아두어야할 사항들 기술)
-    
-## 시연영상 주소
 
 https://youtu.be/ZHjXpxrN4Ws
