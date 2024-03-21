@@ -4,9 +4,9 @@
 
 ## High Level Design
 
-<img src="https://github.com/Mazogorath/AI_Inventory/tree/main/doc/Images/Flowchart.jpg" width="40%" height="30%" title="px(픽셀) 크기 설정" alt="Flowchart"></img>
-<img src="https://github.com/Mazogorath/AI_Inventory/tree/main/doc/Images/High-Level-Design.png" width="40%" height="30%" title="px(픽셀) 크기 설정" alt="HighLevelDesign"></img>
-<img src="https://github.com/Mazogorath/AI_Inventory/tree/main/doc/Images/Low-Level-Design.png" width="40%" height="30%" title="px(픽셀) 크기 설정" alt="LowLevelDesign"></img>
+![image](doc/Images/Flowchart.jpg)
+![image](doc/Images/High-Level-Design.png)
+![image](doc/Images/Low-Level-Design.png)
 
 ## Clone code
 
@@ -35,11 +35,10 @@ make install
 python3 total_gui.py
 
 ## Output
-
-<img src="https://github.com/Mazogorath/AI_Inventory/tree/main/doc/Images/UI1.png" width="40%" height="30%" title="px(픽셀) 크기 설정" alt="UI1"></img>
-<img src="https://github.com/Mazogorath/AI_Inventory/tree/main/doc/Images/UI2.png" width="40%" height="30%" title="px(픽셀) 크기 설정" alt="UI2"></img>
-<img src="https://github.com/Mazogorath/AI_Inventory/tree/main/doc/Images/UI3.png" width="40%" height="30%" title="px(픽셀) 크기 설정" alt="UI3"></img>
-<img src="https://github.com/Mazogorath/AI_Inventory/tree/main/doc/Images/UI4.png" width="40%" height="30%" title="px(픽셀) 크기 설정" alt="UI4"></img>
+![image](doc/Images/UI1.png)
+![image](doc/Images/UI2.png)
+![image](doc/Images/UI3.png)
+![image](doc/Images/UI4.png)
 
 ## Appendix
 
