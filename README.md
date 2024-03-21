@@ -47,3 +47,7 @@ python demo.py -i xxx -m yyy -d zzz
 ## Appendix
 
     (참고 자료 및 알아두어야할 사항들 기술)
+    
+## 시연영상 주소
+
+https://youtu.be/ZHjXpxrN4Ws
