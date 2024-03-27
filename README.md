@@ -43,3 +43,8 @@ python3 total_gui.py
 ## Appendix
 
 https://youtu.be/ZHjXpxrN4Ws
+
+
+## 시연영상
+1화면만 있는 영상 : https://youtu.be/ZHjXpxrN4Ws
+2 발표 장소에서 촬영한 것 : https://youtu.be/wR9NyhMVFlk
